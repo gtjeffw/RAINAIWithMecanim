@@ -74,7 +74,7 @@ public class AINavSteeringController : MonoBehaviour
 	//Where is AI going?
 	protected int currWayPoint = 0;
     [Tooltip("waypoints: A list of waypoints that will be visited in order by the AI (and then start over from beginning). Make sure all can be reached and the NavMesh is baked properly!")]
-    public Transform [] waypoints = new Transform[0]; 
+    public Vector3 [] waypoints = new Vector3[0]; 
 
     [Tooltip("stopAtNextWaypoint: Will the agent stop at the waypoint, or will the agent immediately go to the next one?")]
 	public bool stopAtNextWaypoint = false;
@@ -233,7 +233,7 @@ public class AINavSteeringController : MonoBehaviour
         if (waypoints.Length > 0 && useNavMeshPathPlanning)
         {
             if(agent != null)
-                agent.SetDestination(waypoints[currWayPoint].position);
+                agent.SetDestination(waypoints[currWayPoint]);
         }
 
         ///nudge in the dir mecanim wants to go. not sure if it helps...
@@ -264,14 +264,14 @@ public class AINavSteeringController : MonoBehaviour
 	}
 
 
-    public void setWayPoints(Transform [] newWaypoints) {
+    public void setWayPoints(Vector3 [] newWaypoints) {
 
         if (newWaypoints == null)
             return;
 
         currWayPoint = 0;
 
-        waypoints = new Transform[newWaypoints.Length];
+        waypoints = new Vector3[newWaypoints.Length];
 
         for (int i = 0; i < waypoints.Length; ++i)
         {
@@ -285,11 +285,15 @@ public class AINavSteeringController : MonoBehaviour
 
     }
 
-    public void setWayPoint(Transform newWaypoint) {
+    public void setWayPoint(Vector3 newWaypoint) {
+
+        if (waypoints.Length > 0 && 
+                newWaypoint == waypoints[currWayPoint])
+            return;
 
         currWayPoint = 0;
 
-		waypoints = new Transform[1];
+		waypoints = new Vector3[1];
 
         waypoints[0] = newWaypoint;
 
@@ -304,7 +308,7 @@ public class AINavSteeringController : MonoBehaviour
 
         currWayPoint = 0;
 
-        waypoints = new Transform[0];
+        waypoints = new Vector3[0];
 
         isComplete = true;
         isTargetedForStop = true;
@@ -377,7 +381,7 @@ public class AINavSteeringController : MonoBehaviour
             if (useNavMeshPathPlanning)
                 targetPos = agent.destination;
             else
-                targetPos = waypoints[currWayPoint].position;
+                targetPos = waypoints[currWayPoint];
 
             bool waypointReached = ((this.transform.position - targetPos).sqrMagnitude < waypointCaptureRadiusSqr);
                       
@@ -401,7 +405,7 @@ public class AINavSteeringController : MonoBehaviour
 
                         //now head for next waypoint
                         if(useNavMeshPathPlanning)
-                            agent.SetDestination(waypoints[currWayPoint].position);  
+                            agent.SetDestination(waypoints[currWayPoint]);  
 
                     }
                     else
@@ -412,7 +416,7 @@ public class AINavSteeringController : MonoBehaviour
 
                             //now head for next waypoint
                             if(useNavMeshPathPlanning)
-                                agent.SetDestination(waypoints[currWayPoint].position);
+                                agent.SetDestination(waypoints[currWayPoint]);
                         }
                         else
                         {
@@ -489,7 +493,7 @@ public class AINavSteeringController : MonoBehaviour
             {
                 //Just doing simple steering
 
-                candidateAgentDesiredHeading = waypoints[currWayPoint].position - transform.position;
+                candidateAgentDesiredHeading = waypoints[currWayPoint] - transform.position;
 
                 if (candidateAgentDesiredHeading.sqrMagnitude < VectorLengthThresholdSqr)
                 {
@@ -598,7 +602,7 @@ public class AINavSteeringController : MonoBehaviour
 			Vector2 target;
 
 			if(waypoints.Length > 0)
-				target = new Vector2(waypoints[currWayPoint].position.x, waypoints[currWayPoint].position.z);
+				target = new Vector2(waypoints[currWayPoint].x, waypoints[currWayPoint].z);
 			else
 				target = new Vector2(this.transform.position.x, this.transform.position.z);
 
